@@ -1,0 +1,814 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>MotionForge AI Studio — One File AI Video Website</title>
+<meta name="description" content="A single-file, Higgsfield-inspired AI video and image studio website with prompt generation, cinematic controls, workflow canvas, marketing studio, gallery, and optional API endpoint hook." />
+<style>
+:root{
+  --bg:#050509;
+  --panel:#0e0f18;
+  --panel2:#151728;
+  --text:#f6f3ff;
+  --muted:#b8b3c7;
+  --line:rgba(255,255,255,.12);
+  --soft:rgba(255,255,255,.07);
+  --accent:#b891ff;
+  --accent2:#74f8ff;
+  --hot:#ff5fb7;
+  --good:#7dffbb;
+  --warn:#ffd166;
+  --shadow:0 24px 80px rgba(0,0,0,.55);
+  --radius:26px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(184,145,255,.25), transparent 38rem),
+    radial-gradient(circle at top right, rgba(116,248,255,.14), transparent 35rem),
+    radial-gradient(circle at 55% 15%, rgba(255,95,183,.10), transparent 24rem),
+    var(--bg);
+  color:var(--text);
+  overflow-x:hidden;
+}
+a{color:inherit;text-decoration:none}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+.wrap{width:min(1180px,calc(100% - 32px));margin-inline:auto}
+.pill{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:8px 13px;border:1px solid var(--line);border-radius:999px;
+  background:rgba(255,255,255,.06);color:#eee;font-size:13px;
+  backdrop-filter:blur(14px)
+}
+header{
+  position:sticky;top:0;z-index:50;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  background:rgba(5,5,9,.72);backdrop-filter:blur(18px)
+}
+.nav{height:72px;display:flex;align-items:center;justify-content:space-between;gap:18px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:-.04em;font-size:22px}
+.logoMark{
+  width:36px;height:36px;border-radius:12px;
+  background:conic-gradient(from 210deg,var(--accent),var(--accent2),var(--hot),var(--accent));
+  box-shadow:0 0 32px rgba(184,145,255,.45);
+  position:relative
+}
+.logoMark:after{
+  content:"";position:absolute;inset:7px;border-radius:9px;background:rgba(5,5,9,.86);
+  border:1px solid rgba(255,255,255,.22)
+}
+.navlinks{display:flex;align-items:center;gap:18px;color:var(--muted);font-size:14px}
+.navlinks a:hover{color:white}
+.navActions{display:flex;gap:10px;align-items:center}
+.btn{
+  border:1px solid var(--line);background:rgba(255,255,255,.07);color:white;
+  border-radius:999px;padding:11px 16px;font-weight:800;
+  transition:.2s transform,.2s background,.2s border-color;
+}
+.btn:hover{transform:translateY(-1px);background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.22)}
+.btn.primary{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#090912;border-color:transparent;box-shadow:0 18px 50px rgba(116,248,255,.12)
+}
+.btn.hot{background:linear-gradient(135deg,var(--hot),var(--accent));border-color:transparent}
+.btn.small{padding:8px 11px;font-size:13px}
+.hero{padding:70px 0 38px}
+.heroGrid{display:grid;grid-template-columns:1fr .86fr;gap:34px;align-items:center}
+h1{
+  font-size:clamp(48px,7vw,92px);line-height:.9;margin:18px 0 20px;
+  letter-spacing:-.075em;max-width:860px
+}
+.gradText{background:linear-gradient(135deg,#fff,var(--accent2),var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{font-size:19px;line-height:1.7;color:var(--muted);max-width:720px;margin:0 0 25px}
+.heroCtas{display:flex;gap:12px;flex-wrap:wrap;margin:28px 0}
+.trustRow{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+.heroPanel{
+  min-height:610px;border:1px solid rgba(255,255,255,.13);border-radius:36px;padding:16px;
+  background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.035));
+  box-shadow:var(--shadow);position:relative;overflow:hidden
+}
+.heroPanel:before{
+  content:"";position:absolute;inset:-40% -70% auto auto;width:430px;height:430px;border-radius:50%;
+  background:radial-gradient(circle,rgba(116,248,255,.24),transparent 65%);filter:blur(18px)
+}
+.previewCard{
+  position:relative;overflow:hidden;border-radius:28px;min-height:390px;
+  background:
+    linear-gradient(180deg,rgba(0,0,0,.06),rgba(0,0,0,.74)),
+    radial-gradient(circle at 30% 15%,#fff7,transparent 12%),
+    radial-gradient(circle at 70% 40%,rgba(116,248,255,.50),transparent 10%),
+    linear-gradient(135deg,#5e35d9,#111827 45%,#020309);
+  border:1px solid rgba(255,255,255,.14);
+}
+.orbit{position:absolute;border:1px solid rgba(255,255,255,.18);border-radius:50%;animation:spin 16s linear infinite}
+.orbit.o1{width:320px;height:320px;left:30px;top:42px}
+.orbit.o2{width:210px;height:210px;right:-45px;top:75px;animation-duration:12s}
+.orbit.o3{width:145px;height:145px;left:190px;bottom:18px;animation-duration:9s}
+@keyframes spin{to{transform:rotate(360deg)}}
+.fakeClip{
+  position:absolute;left:20px;right:20px;bottom:20px;border:1px solid rgba(255,255,255,.12);
+  background:rgba(7,9,20,.78);backdrop-filter:blur(20px);border-radius:22px;padding:15px
+}
+.clipTop{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:13px}
+.timeline{height:50px;display:grid;grid-template-columns:1.2fr .8fr 1fr .7fr;gap:8px}
+.timeline span{border-radius:11px;background:linear-gradient(135deg,rgba(184,145,255,.5),rgba(116,248,255,.25));position:relative;overflow:hidden}
+.timeline span:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent);animation:scan 2.5s linear infinite}
+@keyframes scan{to{transform:translateX(100%)}}
+.statsGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.stat{border:1px solid rgba(255,255,255,.11);background:rgba(255,255,255,.055);padding:13px;border-radius:18px}
+.stat strong{font-size:20px;display:block}
+.stat span{font-size:12px;color:var(--muted)}
+.section{padding:72px 0}
+.sectionHead{display:flex;align-items:end;justify-content:space-between;gap:20px;margin-bottom:24px}
+.sectionHead h2{font-size:clamp(34px,5vw,62px);line-height:.94;margin:0;letter-spacing:-.055em}
+.sectionHead p{color:var(--muted);max-width:480px;line-height:1.55;margin:0}
+.grid{display:grid;gap:16px}
+.features{grid-template-columns:repeat(4,1fr)}
+.card{
+  border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.035));
+  border-radius:var(--radius);padding:20px;box-shadow:0 15px 50px rgba(0,0,0,.18);position:relative;overflow:hidden
+}
+.card:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at top right,rgba(184,145,255,.12),transparent 45%);pointer-events:none}
+.icon{font-size:28px;margin-bottom:12px;display:inline-grid;place-items:center;width:46px;height:46px;border-radius:16px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12)}
+.card h3{margin:0 0 8px;font-size:18px}
+.card p{margin:0;color:var(--muted);line-height:1.55;font-size:14px}
+.studio{
+  display:grid;grid-template-columns:290px 1fr 320px;gap:16px;align-items:start;
+  border:1px solid rgba(255,255,255,.13);border-radius:34px;padding:16px;
+  background:rgba(255,255,255,.045);box-shadow:var(--shadow)
+}
+.side,.mainStudio,.outputSide{
+  border:1px solid rgba(255,255,255,.105);border-radius:26px;background:rgba(7,8,16,.76);padding:16px
+}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.tab{border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--muted);padding:9px 11px;border-radius:999px;font-size:13px}
+.tab.active{background:white;color:#080812;border-color:white}
+.field{margin-bottom:14px}
+label{display:flex;justify-content:space-between;gap:8px;color:#e8e2ff;font-size:13px;margin:0 0 8px;font-weight:800}
+input,textarea,select{
+  width:100%;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:white;
+  border-radius:16px;padding:12px 13px;outline:none
+}
+textarea{min-height:150px;resize:vertical;line-height:1.55}
+input:focus,textarea:focus,select:focus{border-color:rgba(116,248,255,.55);box-shadow:0 0 0 3px rgba(116,248,255,.11)}
+select option{color:#111}
+.rangeRow{display:grid;grid-template-columns:1fr 54px;gap:8px;align-items:center}
+.genCanvas{
+  min-height:430px;border-radius:24px;border:1px solid rgba(255,255,255,.12);overflow:hidden;position:relative;
+  background:
+    radial-gradient(circle at var(--x,30%) var(--y,30%), rgba(255,255,255,.28), transparent 10%),
+    linear-gradient(135deg,#141529,#5a3ed6 45%,#090914 70%,#010107);
+  display:flex;align-items:flex-end
+}
+.genCanvas[data-ratio="9:16"]{min-height:560px;max-width:315px;margin:auto}
+.genCanvas[data-ratio="1:1"]{min-height:420px;max-width:420px;margin:auto}
+.genCanvas[data-ratio="16:9"]{min-height:360px}
+.genOverlay{
+  width:100%;padding:18px;background:linear-gradient(transparent,rgba(0,0,0,.82));display:flex;justify-content:space-between;gap:12px;align-items:end
+}
+.badge{font-size:12px;border:1px solid rgba(255,255,255,.15);padding:7px 9px;border-radius:999px;background:rgba(0,0,0,.33);color:#e8e8ff}
+.progressWrap{margin-top:14px;display:none}
+.progress{height:10px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden}
+.progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:inherit;transition:.2s width}
+.outputList{display:grid;gap:10px;max-height:576px;overflow:auto;padding-right:4px}
+.outputItem{border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.055);border-radius:18px;padding:12px}
+.thumb{height:100px;border-radius:14px;background:linear-gradient(135deg,#4420a7,#0f172a,#0891b2);margin-bottom:10px;position:relative;overflow:hidden}
+.thumb:after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 22% 30%,rgba(255,255,255,.7),transparent 8%),linear-gradient(transparent,rgba(0,0,0,.45))}
+.meta{font-size:12px;color:var(--muted);line-height:1.45}
+.toolsRow{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.canvasBoard{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:14px;
+}
+.node{min-height:170px;border:1px solid rgba(255,255,255,.13);border-radius:24px;padding:15px;background:rgba(255,255,255,.055);position:relative}
+.node:after{content:"→";position:absolute;right:-16px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,.35);font-size:24px}
+.node:last-child:after{display:none}
+.node .mini{height:82px;border-radius:16px;margin-bottom:12px;background:linear-gradient(135deg,rgba(184,145,255,.5),rgba(116,248,255,.22),rgba(255,95,183,.22));border:1px solid rgba(255,255,255,.12)}
+.marketing{grid-template-columns:1.1fr .9fr}
+.scriptBox{white-space:pre-wrap;line-height:1.55;color:#f4f1ff;background:rgba(0,0,0,.23);border:1px solid rgba(255,255,255,.1);padding:16px;border-radius:18px;min-height:250px}
+.gallery{grid-template-columns:repeat(3,1fr)}
+.gallery .art{height:250px;border-radius:24px;border:1px solid rgba(255,255,255,.13);background:var(--g);position:relative;overflow:hidden}
+.gallery .art:after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 35% 25%,rgba(255,255,255,.55),transparent 11%),linear-gradient(transparent,rgba(0,0,0,.75))}
+.gallery .cap{position:absolute;left:14px;right:14px;bottom:14px;z-index:1}
+.pricing{grid-template-columns:repeat(3,1fr)}
+.price strong{font-size:42px;letter-spacing:-.05em}
+.price ul{padding-left:18px;color:var(--muted);line-height:1.8}
+footer{padding:44px 0;border-top:1px solid rgba(255,255,255,.08);color:var(--muted)}
+.modal{
+  position:fixed;inset:0;background:rgba(0,0,0,.67);display:none;align-items:center;justify-content:center;z-index:80;padding:20px
+}
+.modal.open{display:flex}
+.modalBox{width:min(520px,100%);background:#10111e;border:1px solid rgba(255,255,255,.13);border-radius:28px;padding:22px;box-shadow:var(--shadow)}
+.notice{border:1px solid rgba(255,209,102,.25);background:rgba(255,209,102,.08);color:#ffe2a0;border-radius:18px;padding:12px;line-height:1.5;font-size:13px}
+.drop{
+  border:1px dashed rgba(255,255,255,.25);border-radius:20px;min-height:120px;display:grid;place-items:center;text-align:center;color:var(--muted);padding:12px;background:rgba(255,255,255,.04)
+}
+.drop img{max-width:100%;max-height:180px;border-radius:16px;display:none}
+.kbd{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);border-radius:7px;padding:2px 6px;color:#fff}
+.mobileMenu{display:none}
+@media (max-width:1050px){
+  .heroGrid,.studio,.marketing{grid-template-columns:1fr}
+  .features{grid-template-columns:repeat(2,1fr)}
+  .canvasBoard{grid-template-columns:repeat(2,1fr)}
+  .node:after{display:none}
+}
+@media (max-width:760px){
+  .navlinks,.navActions{display:none}
+  .mobileMenu{display:inline-flex}
+  .hero{padding-top:44px}
+  .heroPanel{min-height:auto}
+  .features,.gallery,.pricing,.canvasBoard{grid-template-columns:1fr}
+  .sectionHead{display:block}
+  .statsGrid{grid-template-columns:1fr}
+  h1{font-size:48px}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap nav">
+    <a class="logo" href="#top"><span class="logoMark"></span><span>MotionForge</span></a>
+    <nav class="navlinks">
+      <a href="#studio">Studio</a><a href="#canvas">Canvas</a><a href="#marketing">Marketing</a><a href="#community">Community</a><a href="#pricing">Pricing</a>
+    </nav>
+    <div class="navActions">
+      <button class="btn small" onclick="openModal('apiModal')">Connect API</button>
+      <button class="btn small" onclick="openModal('loginModal')">Sign in</button>
+      <a class="btn primary small" href="#studio">Create</a>
+    </div>
+    <button class="btn small mobileMenu" onclick="document.body.classList.toggle('showMenu')">Menu</button>
+  </div>
+</header>
+
+<main id="top">
+<section class="hero">
+  <div class="wrap heroGrid">
+    <div>
+      <span class="pill">✨ One-file AI video studio • no folder setup needed</span>
+      <h1>Make cinematic AI videos, ads, images, and shot plans from one workspace.</h1>
+      <p class="lead">This is an original, self-contained website inspired by modern AI creative platforms. It includes a polished landing page, generator UI, cinema controls, prompt enhancer, workflow canvas, marketing script studio, gallery, pricing, login mockup, local project saving, and optional API endpoint connection.</p>
+      <div class="heroCtas">
+        <a class="btn primary" href="#studio">Start creating</a>
+        <button class="btn" onclick="generateRandomBrief()">Generate ad idea</button>
+        <button class="btn" onclick="openModal('apiModal')">Use real API endpoint</button>
+      </div>
+      <div class="trustRow">
+        <span class="pill">🎬 Text → Video</span>
+        <span class="pill">🖼️ Image → Video</span>
+        <span class="pill">🎥 Camera Control</span>
+        <span class="pill">🧠 AI Director</span>
+        <span class="pill">📈 Ad Studio</span>
+      </div>
+    </div>
+    <div class="heroPanel">
+      <div class="previewCard">
+        <div class="orbit o1"></div><div class="orbit o2"></div><div class="orbit o3"></div>
+        <div class="fakeClip">
+          <div class="clipTop">
+            <span class="badge">Cinema Studio Render</span>
+            <span class="badge">9:16 • 12s • Product Ad</span>
+          </div>
+          <div class="timeline"><span></span><span></span><span></span><span></span></div>
+        </div>
+      </div>
+      <div class="statsGrid">
+        <div class="stat"><strong>12</strong><span>creative tools</span></div>
+        <div class="stat"><strong>1 file</strong><span>HTML/CSS/JS merged</span></div>
+        <div class="stat"><strong>0</strong><span>required uploads</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="features">
+  <div class="wrap">
+    <div class="sectionHead">
+      <h2>Everything in one creative suite.</h2>
+      <p>Use it as a complete front-end for an AI video product, prototype, or landing page. Real model generation requires your own compatible API endpoint.</p>
+    </div>
+    <div class="grid features">
+      <div class="card"><span class="icon">🎞️</span><h3>AI Video Generator</h3><p>Prompt, model picker, duration, aspect ratio, camera motion, and style controls.</p></div>
+      <div class="card"><span class="icon">🖼️</span><h3>AI Image Studio</h3><p>Reference image upload preview, visual style presets, still-image generation workspace.</p></div>
+      <div class="card"><span class="icon">🎥</span><h3>Cinema Controls</h3><p>Lens, focal length, camera body, lighting, genre, depth of field, and movement stacking.</p></div>
+      <div class="card"><span class="icon">🧑‍🚀</span><h3>Avatars & Lipsync</h3><p>UI modules for talking avatars, UGC ads, voices, product demos, and influencer content.</p></div>
+      <div class="card"><span class="icon">🧩</span><h3>Workflow Canvas</h3><p>Moodboard → prompt → storyboard → render → upscale chain in a visual board.</p></div>
+      <div class="card"><span class="icon">📈</span><h3>Marketing Studio</h3><p>Create hooks, scripts, CTA blocks, product-ad angles, and social cutdowns.</p></div>
+      <div class="card"><span class="icon">🪄</span><h3>Prompt Enhancer</h3><p>Turns simple ideas into detailed cinematic prompts with lighting, lens, and motion.</p></div>
+      <div class="card"><span class="icon">💾</span><h3>Local Projects</h3><p>Saves generated project cards in your browser with localStorage; export briefs as text.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="studio">
+  <div class="wrap">
+    <div class="sectionHead">
+      <h2>Creator Studio</h2>
+      <p>Choose a mode, add a prompt, upload a visual reference, tune cinematic settings, and generate a project card.</p>
+    </div>
+
+    <div class="studio">
+      <aside class="side">
+        <div class="tabs" id="modeTabs">
+          <button class="tab active" data-mode="Text to Video">Text → Video</button>
+          <button class="tab" data-mode="Image to Video">Image → Video</button>
+          <button class="tab" data-mode="AI Image">AI Image</button>
+          <button class="tab" data-mode="Avatar">Avatar</button>
+        </div>
+
+        <div class="field">
+          <label>Model</label>
+          <select id="model">
+            <option>Forge Cinematic Pro</option>
+            <option>Forge Motion Fast</option>
+            <option>Forge Realism Max</option>
+            <option>Forge Anime Flow</option>
+            <option>Forge Product Ads</option>
+            <option>External API Model</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Aspect Ratio</label>
+          <select id="ratio">
+            <option value="9:16">9:16 Vertical</option>
+            <option value="16:9">16:9 Widescreen</option>
+            <option value="1:1">1:1 Square</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Duration <span id="durVal">8s</span></label>
+          <div class="rangeRow"><input id="duration" type="range" min="4" max="60" value="8" /><span class="badge" id="durBadge">8s</span></div>
+        </div>
+
+        <div class="field">
+          <label>Reference Upload</label>
+          <div class="drop" id="drop">
+            <div id="dropText">Drop image/video here or click<br><span class="kbd">local preview only</span></div>
+            <img id="previewImg" alt="Reference preview" />
+            <input id="fileInput" type="file" accept="image/*,video/*" style="display:none" />
+          </div>
+        </div>
+      </aside>
+
+      <section class="mainStudio">
+        <div class="field">
+          <label>Main Prompt <button class="btn small" onclick="enhancePrompt()">Enhance</button></label>
+          <textarea id="prompt">A cinematic vertical ad for a premium astronomy app. A creator stands under a glowing desert night sky, opens the app, finds the Milky Way on a map, checks weather, then points the camera toward the stars. Realistic phone UI framing, premium blue-hour lighting, smooth dolly-in, clean CTA.</textarea>
+        </div>
+
+        <div class="grid" style="grid-template-columns:repeat(3,1fr);gap:10px">
+          <div class="field"><label>Genre</label><select id="genre"><option>Commercial</option><option>Sci-Fi</option><option>Documentary</option><option>Action</option><option>Noir</option><option>Music Video</option><option>Comedy</option><option>Horror</option></select></div>
+          <div class="field"><label>Camera Move</label><select id="move"><option>Dolly In</option><option>Orbit</option><option>Handheld UGC</option><option>Crane Up</option><option>Push Pull</option><option>Bullet Time</option><option>Static Tripod</option></select></div>
+          <div class="field"><label>Lens</label><select id="lens"><option>35mm Anamorphic</option><option>24mm Wide</option><option>50mm Prime</option><option>85mm Portrait</option><option>16mm Film</option><option>Macro</option></select></div>
+        </div>
+
+        <div class="grid" style="grid-template-columns:repeat(3,1fr);gap:10px">
+          <div class="field"><label>Lighting</label><select id="lighting"><option>Blue Hour Neon</option><option>Golden Hour</option><option>Moonlit</option><option>Studio Softbox</option><option>Hard Flash</option><option>Volumetric Rays</option></select></div>
+          <div class="field"><label>Quality</label><select id="quality"><option>Standard</option><option>HD</option><option>Cinematic</option><option>4K-ready Brief</option></select></div>
+          <div class="field"><label>Motion Detail</label><select id="motion"><option>Natural Physics</option><option>Fast Viral</option><option>Slow Emotional</option><option>High Energy</option><option>Product Rotation</option></select></div>
+        </div>
+
+        <div class="genCanvas" id="genCanvas" data-ratio="9:16">
+          <div class="genOverlay">
+            <div>
+              <span class="badge" id="canvasMode">Text to Video</span>
+              <h3 id="canvasTitle" style="margin:10px 0 4px">Ready to render</h3>
+              <div class="meta" id="canvasMeta">Forge Cinematic Pro • 9:16 • 8s</div>
+            </div>
+            <button class="btn primary" onclick="startGeneration()">Generate</button>
+          </div>
+        </div>
+
+        <div class="progressWrap" id="progressWrap">
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px;color:var(--muted);font-size:13px"><span id="statusText">Preparing render...</span><span id="pct">0%</span></div>
+          <div class="progress"><i id="bar"></i></div>
+        </div>
+
+        <div class="toolsRow">
+          <button class="btn small" onclick="makeStoryboard()">Create storyboard</button>
+          <button class="btn small" onclick="copyPrompt()">Copy prompt</button>
+          <button class="btn small" onclick="downloadBrief()">Download brief</button>
+          <button class="btn small" onclick="openModal('apiModal')">API settings</button>
+        </div>
+      </section>
+
+      <aside class="outputSide">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px">
+          <h3 style="margin:0">Project Gallery</h3>
+          <button class="btn small" onclick="clearGallery()">Clear</button>
+        </div>
+        <div class="notice" style="margin-bottom:12px">Demo mode creates project cards and production briefs. Connect an API endpoint to attempt real generation.</div>
+        <div class="outputList" id="outputList"></div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="canvas">
+  <div class="wrap">
+    <div class="sectionHead">
+      <h2>One Canvas. Every Workflow.</h2>
+      <p>A visual chain for planning your creative pipeline before rendering. Click any node to fill the Studio prompt.</p>
+    </div>
+    <div class="canvasBoard">
+      <div class="node" onclick="setPromptPreset('Moodboard with cinematic references, color palette, character notes, product positioning, and shot inspirations.')"><div class="mini"></div><h3>Moodboard</h3><p>Collect style direction and visual language.</p></div>
+      <div class="node" onclick="setPromptPreset('A detailed cinematic prompt with subject, scene, camera motion, lens, lighting, realistic physics, and clean final CTA.')"><div class="mini"></div><h3>Prompt</h3><p>Write or enhance one master prompt.</p></div>
+      <div class="node" onclick="makeStoryboard()"><div class="mini"></div><h3>Storyboard</h3><p>Break the concept into six production shots.</p></div>
+      <div class="node" onclick="startGeneration()"><div class="mini"></div><h3>Render</h3><p>Create a saved project card or send to API.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="marketing">
+  <div class="wrap">
+    <div class="sectionHead">
+      <h2>Marketing Studio</h2>
+      <p>Generate social ads, hooks, creator-style UGC scripts, product demos, and CTAs for apps, brands, and products.</p>
+    </div>
+    <div class="grid marketing">
+      <div class="card">
+        <h3>Ad Builder</h3>
+        <div class="grid" style="grid-template-columns:repeat(2,1fr);gap:10px">
+          <div class="field"><label>Product/App</label><input id="productName" value="AstraScope" /></div>
+          <div class="field"><label>Audience</label><input id="audience" value="sky watchers and creators" /></div>
+          <div class="field"><label>Offer</label><input id="offer" value="find the Milky Way and check viewing conditions" /></div>
+          <div class="field"><label>Tone</label><select id="tone"><option>UGC testimonial</option><option>Premium cinematic</option><option>Fast TikTok hook</option><option>Founder story</option><option>Product demo</option></select></div>
+        </div>
+        <button class="btn primary" onclick="buildMarketingScript()">Build ad script</button>
+      </div>
+      <div class="card">
+        <h3>Generated Script</h3>
+        <div class="scriptBox" id="scriptBox">Click “Build ad script” to generate a complete short-form video script.</div>
+        <div class="toolsRow">
+          <button class="btn small" onclick="copyText('scriptBox')">Copy script</button>
+          <button class="btn small" onclick="sendScriptToStudio()">Use as prompt</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="community">
+  <div class="wrap">
+    <div class="sectionHead">
+      <h2>Community Gallery</h2>
+      <p>Visual inspiration cards using pure CSS art, so this file does not need external images.</p>
+    </div>
+    <div class="grid gallery">
+      <div class="art" style="--g:linear-gradient(135deg,#0f172a,#7134d9,#3b0764)"><div class="cap"><span class="badge">Fashion Film</span><h3>Neon runway in rain</h3></div></div>
+      <div class="art" style="--g:linear-gradient(135deg,#111827,#064e3b,#67e8f9)"><div class="cap"><span class="badge">Product Ad</span><h3>Smart bottle desert launch</h3></div></div>
+      <div class="art" style="--g:linear-gradient(135deg,#1f2937,#7c2d12,#fde68a)"><div class="cap"><span class="badge">Cinema</span><h3>Sunset chase sequence</h3></div></div>
+      <div class="art" style="--g:linear-gradient(135deg,#020617,#1d4ed8,#a855f7)"><div class="cap"><span class="badge">Space</span><h3>Moonlit stargazing app</h3></div></div>
+      <div class="art" style="--g:linear-gradient(135deg,#3b0764,#be185d,#f9a8d4)"><div class="cap"><span class="badge">Avatar</span><h3>Creator talking demo</h3></div></div>
+      <div class="art" style="--g:linear-gradient(135deg,#0c0a09,#57534e,#fafaf9)"><div class="cap"><span class="badge">Noir</span><h3>Detective office reveal</h3></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="pricing">
+  <div class="wrap">
+    <div class="sectionHead">
+      <h2>Pricing UI</h2>
+      <p>Editable cards for a SaaS-style website. These are placeholders; change pricing before launch.</p>
+    </div>
+    <div class="grid pricing">
+      <div class="card price"><span class="pill">Starter</span><h3>Try the studio</h3><strong>$0</strong><p>Prototype and plan content.</p><ul><li>Demo renders</li><li>Prompt enhancer</li><li>Local project saving</li></ul><button class="btn">Start free</button></div>
+      <div class="card price" style="border-color:rgba(116,248,255,.45)"><span class="pill">Creator</span><h3>For real generation</h3><strong>$19</strong><p>Connect your model/API.</p><ul><li>Endpoint connection</li><li>Export briefs</li><li>Ad studio</li></ul><button class="btn primary">Choose creator</button></div>
+      <div class="card price"><span class="pill">Team</span><h3>For brands</h3><strong>$99</strong><p>Build a creative workflow hub.</p><ul><li>Team-style UI</li><li>Workflow canvas</li><li>Enterprise section ready</li></ul><button class="btn">Contact sales</button></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap" style="display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap">
+    <div><strong style="color:white">MotionForge AI Studio</strong><br>Single-file website prototype. Original design. No copied assets.</div>
+    <div>Open this file directly, edit in any text editor, or connect your own generation endpoint.</div>
+  </div>
+</footer>
+
+<div class="modal" id="loginModal">
+  <div class="modalBox">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><h2 style="margin:0">Sign in</h2><button class="btn small" onclick="closeModal('loginModal')">Close</button></div>
+    <p style="color:var(--muted);line-height:1.6">This one-file version uses browser-only mock sign-in. For real accounts, add Firebase, Supabase, Auth0, or your own backend.</p>
+    <div class="field"><label>Email</label><input id="email" placeholder="you@example.com" /></div>
+    <div class="field"><label>Password</label><input type="password" placeholder="••••••••" /></div>
+    <button class="btn primary" onclick="mockLogin()">Continue</button>
+  </div>
+</div>
+
+<div class="modal" id="apiModal">
+  <div class="modalBox">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><h2 style="margin:0">API Connection</h2><button class="btn small" onclick="closeModal('apiModal')">Close</button></div>
+    <p style="color:var(--muted);line-height:1.6">Optional: paste a compatible endpoint that accepts JSON. This file will POST the prompt/settings. Many APIs block browser requests unless CORS is enabled.</p>
+    <div class="notice" style="margin-bottom:14px">No API key is included because real keys are private. Store keys on a backend for production.</div>
+    <div class="field"><label>Endpoint URL</label><input id="apiUrl" placeholder="https://your-api.com/generate" /></div>
+    <div class="field"><label>API Key / Token</label><input id="apiKey" placeholder="Optional bearer token" /></div>
+    <div class="field"><label>Response video/image URL field</label><input id="apiField" value="url" /></div>
+    <button class="btn primary" onclick="saveApiSettings()">Save API Settings</button>
+  </div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+let activeMode = 'Text to Video';
+let outputs = JSON.parse(localStorage.getItem('mf_outputs') || '[]');
+let api = JSON.parse(localStorage.getItem('mf_api') || '{}');
+
+function init(){
+  renderOutputs();
+  $('#apiUrl').value = api.url || '';
+  $('#apiKey').value = api.key || '';
+  $('#apiField').value = api.field || 'url';
+  $$('#modeTabs .tab').forEach(btn => btn.addEventListener('click', () => {
+    $$('#modeTabs .tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeMode = btn.dataset.mode;
+    $('#canvasMode').textContent = activeMode;
+    $('#canvasTitle').textContent = activeMode === 'Avatar' ? 'Avatar studio ready' : 'Ready to render';
+    updateMeta();
+  }));
+  $('#duration').addEventListener('input', e => {
+    $('#durVal').textContent = e.target.value + 's';
+    $('#durBadge').textContent = e.target.value + 's';
+    updateMeta();
+  });
+  $('#ratio').addEventListener('change', e => {
+    $('#genCanvas').dataset.ratio = e.target.value;
+    updateMeta();
+  });
+  ['model','genre','move','lens','lighting','quality','motion'].forEach(id => $('#'+id).addEventListener('change', updateMeta));
+  $('#drop').addEventListener('click',()=>$('#fileInput').click());
+  $('#fileInput').addEventListener('change', handleFile);
+  $('#drop').addEventListener('dragover', e => {e.preventDefault(); $('#drop').style.borderColor='rgba(116,248,255,.7)'});
+  $('#drop').addEventListener('dragleave', e => {$('#drop').style.borderColor='rgba(255,255,255,.25)'});
+  $('#drop').addEventListener('drop', e => {e.preventDefault(); $('#fileInput').files=e.dataTransfer.files; handleFile({target:$('#fileInput')});});
+  document.addEventListener('mousemove', e => {
+    const x = Math.round((e.clientX/window.innerWidth)*100);
+    const y = Math.round((e.clientY/window.innerHeight)*100);
+    document.documentElement.style.setProperty('--x', x+'%');
+    document.documentElement.style.setProperty('--y', y+'%');
+  });
+}
+function updateMeta(){
+  $('#canvasMeta').textContent = `${$('#model').value} • ${$('#ratio').value} • ${$('#duration').value}s • ${$('#move').value}`;
+}
+function handleFile(e){
+  const f = e.target.files[0];
+  if(!f) return;
+  if(f.type.startsWith('image/')){
+    const reader = new FileReader();
+    reader.onload = ev => {
+      $('#previewImg').src = ev.target.result;
+      $('#previewImg').style.display='block';
+      $('#dropText').style.display='none';
+    };
+    reader.readAsDataURL(f);
+  } else {
+    $('#dropText').innerHTML = `Video loaded: <strong>${f.name}</strong><br><span class="kbd">preview metadata only</span>`;
+  }
+}
+function enhancePrompt(){
+  const p = $('#prompt').value.trim();
+  const add = `
+
+Cinematic production details: realistic human movement, clean mobile UI framing, premium lighting, ${$('#lens').value}, ${$('#move').value}, ${$('#lighting').value}, ${$('#motion').value}, controlled depth of field, consistent subject identity, natural physics, no random text, polished final frame, social-ready composition, high-detail commercial finish.`;
+  if(!p.includes('Cinematic production details')) $('#prompt').value = p + add;
+}
+function setPromptPreset(text){
+  $('#prompt').value = text;
+  location.hash = '#studio';
+}
+function generateRandomBrief(){
+  const ideas = [
+    'A vertical UGC ad where a creator discovers a hidden stargazing spot, opens an astronomy app, checks the Milky Way visibility map, and invites viewers to download.',
+    'A cinematic product commercial showing a phone floating in a futuristic glass studio while AI-generated scenes appear behind it.',
+    'A fashion campaign where the same model appears in four dreamlike locations while the camera performs smooth orbit moves.',
+    'A talking avatar founder pitch explaining how one app helps creators plan better videos in seconds.',
+    'A sci-fi documentary intro with a smooth dolly through a neon control room into a holographic planet map.'
+  ];
+  $('#prompt').value = ideas[Math.floor(Math.random()*ideas.length)];
+  enhancePrompt();
+  location.hash = '#studio';
+}
+function makeStoryboard(){
+  const prompt = $('#prompt').value.trim();
+  const shots = [
+    'Hook shot: visually surprising opening frame that stops scrolling.',
+    'Context shot: show the problem or desire in one clear action.',
+    'Demo shot: reveal the product/app/tool working on screen.',
+    'Proof shot: show the result, comparison, or transformation.',
+    'Emotion shot: human reaction, cinematic movement, or satisfying payoff.',
+    'CTA shot: clean final frame with one clear action.'
+  ];
+  $('#scriptBox').textContent = 'Storyboard based on current prompt:\\n\\n' + shots.map((s,i)=>`Shot ${i+1}: ${s}`).join('\\n') + '\\n\\nMaster prompt:\\n' + prompt;
+  location.hash = '#marketing';
+}
+function projectPayload(){
+  return {
+    mode: activeMode,
+    prompt: $('#prompt').value.trim(),
+    model: $('#model').value,
+    aspect_ratio: $('#ratio').value,
+    duration: $('#duration').value + ' seconds',
+    genre: $('#genre').value,
+    camera_movement: $('#move').value,
+    lens: $('#lens').value,
+    lighting: $('#lighting').value,
+    quality: $('#quality').value,
+    motion_detail: $('#motion').value,
+    created_at: new Date().toISOString()
+  };
+}
+async function startGeneration(){
+  enhancePrompt();
+  const payload = projectPayload();
+  showProgress(true);
+  let realUrl = '';
+  if(api.url){
+    try{
+      $('#statusText').textContent = 'Sending to API endpoint...';
+      const res = await fetch(api.url, {
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json',
+          ...(api.key ? {'Authorization':'Bearer '+api.key} : {})
+        },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      realUrl = data[api.field || 'url'] || data.video || data.image || '';
+    }catch(err){
+      console.warn(err);
+      $('#statusText').textContent = 'API blocked or failed. Creating demo project card...';
+    }
+  }
+  let pct = 0;
+  const timer = setInterval(()=>{
+    pct += Math.floor(Math.random()*14)+8;
+    if(pct>100) pct=100;
+    $('#bar').style.width = pct + '%';
+    $('#pct').textContent = pct + '%';
+    if(pct < 35) $('#statusText').textContent = 'Planning shots...';
+    else if(pct < 70) $('#statusText').textContent = 'Applying camera and lighting...';
+    else if(pct < 100) $('#statusText').textContent = 'Compositing preview...';
+    else{
+      clearInterval(timer);
+      $('#statusText').textContent = 'Complete.';
+      const item = {...payload, id: Date.now(), realUrl, color: colorFromText(payload.prompt)};
+      outputs.unshift(item);
+      outputs = outputs.slice(0,30);
+      localStorage.setItem('mf_outputs', JSON.stringify(outputs));
+      renderOutputs();
+      setTimeout(()=>showProgress(false),900);
+    }
+  },220);
+}
+function showProgress(on){
+  $('#progressWrap').style.display = on ? 'block' : 'none';
+  $('#bar').style.width = '0%';
+  $('#pct').textContent = '0%';
+}
+function colorFromText(text){
+  let h=0; for(let i=0;i<text.length;i++) h=(h*31+text.charCodeAt(i))%360;
+  return `linear-gradient(135deg,hsl(${h},70%,35%),hsl(${(h+70)%360},70%,24%),hsl(${(h+145)%360},80%,42%))`;
+}
+function renderOutputs(){
+  const box = $('#outputList');
+  if(!outputs.length){
+    box.innerHTML = '<div class="outputItem"><div class="thumb"></div><strong>No projects yet</strong><div class="meta">Generate your first project to save it here.</div></div>';
+    return;
+  }
+  box.innerHTML = outputs.map(o => `
+    <div class="outputItem">
+      <div class="thumb" style="background:${o.color || 'linear-gradient(135deg,#4420a7,#0f172a,#0891b2)'}"></div>
+      <strong>${escapeHtml(o.mode)} • ${escapeHtml(o.aspect_ratio)}</strong>
+      <div class="meta">${escapeHtml(o.model)} • ${escapeHtml(o.duration)}<br>${escapeHtml(o.prompt).slice(0,120)}...</div>
+      ${o.realUrl ? `<a class="btn small" href="${o.realUrl}" target="_blank" rel="noreferrer">Open result</a>` : ''}
+      <div class="toolsRow"><button class="btn small" onclick="loadOutput(${o.id})">Load</button><button class="btn small" onclick="downloadOne(${o.id})">Brief</button></div>
+    </div>
+  `).join('');
+}
+function loadOutput(id){
+  const o = outputs.find(x=>x.id===id); if(!o) return;
+  $('#prompt').value = o.prompt;
+  $('#model').value = o.model;
+  $('#ratio').value = o.aspect_ratio;
+  $('#duration').value = parseInt(o.duration) || 8;
+  $('#durVal').textContent = $('#duration').value + 's';
+  $('#durBadge').textContent = $('#duration').value + 's';
+  $('#genre').value = o.genre;
+  $('#move').value = o.camera_movement;
+  $('#lens').value = o.lens;
+  $('#lighting').value = o.lighting;
+  $('#quality').value = o.quality;
+  $('#motion').value = o.motion_detail;
+  updateMeta();
+  location.hash = '#studio';
+}
+function buildMarketingScript(){
+  const product = $('#productName').value || 'your product';
+  const audience = $('#audience').value || 'creators';
+  const offer = $('#offer').value || 'save time';
+  const tone = $('#tone').value;
+  const script =
+`Hook:
+“Most people miss the best shot because they guess instead of planning it.”
+
+Scene 1:
+Show a creator opening ${product} on their phone. Keep the framing natural and realistic.
+
+Scene 2:
+Show the key value: ${offer}. Make the result obvious in one glance.
+
+Scene 3:
+Cut to the creator using it in the real world. Use ${tone.toLowerCase()} energy, but keep it premium and believable.
+
+Scene 4:
+Show the before/after: guessing vs. knowing what to do next.
+
+CTA:
+“Download ${product} and try it today.”
+
+Production prompt:
+Cinematic vertical ad for ${product}, audience: ${audience}, offer: ${offer}, tone: ${tone}, realistic social media UGC, clean phone UI framing, premium lighting, strong CTA, no random text overlays.`;
+  $('#scriptBox').textContent = script;
+}
+function sendScriptToStudio(){
+  $('#prompt').value = $('#scriptBox').textContent;
+  location.hash = '#studio';
+}
+function copyPrompt(){ navigator.clipboard.writeText($('#prompt').value); toast('Prompt copied.'); }
+function copyText(id){ navigator.clipboard.writeText($('#'+id).textContent); toast('Copied.'); }
+function downloadBrief(){
+  const text = briefText(projectPayload());
+  downloadFile('motionforge-production-brief.txt', text);
+}
+function downloadOne(id){
+  const o = outputs.find(x=>x.id===id); if(o) downloadFile('motionforge-project-brief.txt', briefText(o));
+}
+function briefText(o){
+  return `MOTIONFORGE PRODUCTION BRIEF
+
+Mode: ${o.mode}
+Model: ${o.model}
+Aspect Ratio: ${o.aspect_ratio}
+Duration: ${o.duration}
+Genre: ${o.genre}
+Camera Movement: ${o.camera_movement}
+Lens: ${o.lens}
+Lighting: ${o.lighting}
+Quality: ${o.quality}
+Motion Detail: ${o.motion_detail}
+
+PROMPT
+${o.prompt}
+
+NOTES
+This one-file website can save projects locally and optionally POST this JSON to your own API endpoint.`;
+}
+function downloadFile(name,text){
+  const blob = new Blob([text],{type:'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = name; a.click();
+  URL.revokeObjectURL(url);
+}
+function clearGallery(){
+  if(confirm('Clear saved local project gallery?')){
+    outputs=[]; localStorage.removeItem('mf_outputs'); renderOutputs();
+  }
+}
+function saveApiSettings(){
+  api = {url:$('#apiUrl').value.trim(), key:$('#apiKey').value.trim(), field:$('#apiField').value.trim() || 'url'};
+  localStorage.setItem('mf_api', JSON.stringify(api));
+  closeModal('apiModal');
+  toast('API settings saved.');
+}
+function mockLogin(){
+  const email = $('#email').value || 'creator@example.com';
+  closeModal('loginModal');
+  toast('Signed in locally as '+email);
+}
+function openModal(id){ $('#'+id).classList.add('open'); }
+function closeModal(id){ $('#'+id).classList.remove('open'); }
+function toast(msg){
+  const t=document.createElement('div');
+  t.textContent=msg;
+  t.style.cssText='position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#fff;color:#090912;padding:12px 16px;border-radius:999px;font-weight:900;z-index:100;box-shadow:0 12px 40px rgba(0,0,0,.35)';
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),1700);
+}
+function escapeHtml(str=''){
+  return String(str).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+}
+window.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
